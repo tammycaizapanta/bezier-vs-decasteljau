@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 namespace BezierLab.Logica
 {
     // Algoritmo de De Casteljau: interpolación lineal repetida
@@ -33,6 +34,23 @@ namespace BezierLab.Logica
                 for (int i = 0; i < n - r; i++)       // puntos del nivel
                     p[i] = Vector2.Lerp(p[i], p[i + 1], t);
             return p[0];
+        }
+        // Todos los niveles para un t (para dibujar las interpolaciones).
+        // Nivel 0 = puntos de control; el último nivel tiene un solo punto = B(t).
+        public static List<Vector2[]> Niveles(Vector2[] control, double t)
+        {
+            Vector2.Validar(control, 2);
+            List<Vector2[]> niveles = new List<Vector2[]>();
+            niveles.Add((Vector2[])control.Clone());
+            while (niveles[niveles.Count - 1].Length > 1)
+            {
+                Vector2[] anterior = niveles[niveles.Count - 1];
+                Vector2[] siguiente = new Vector2[anterior.Length - 1];
+                for (int i = 0; i < siguiente.Length; i++)
+                    siguiente[i] = Vector2.Lerp(anterior[i], anterior[i + 1], t);
+                niveles.Add(siguiente);
+            }
+            return niveles;
         }
     }
 }
