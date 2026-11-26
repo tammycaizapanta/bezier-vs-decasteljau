@@ -38,5 +38,25 @@ namespace BezierLab.Logica
             desviacion = Math.Sqrt(suma / (Repeticiones - 1));
             return promedio;
         }
+
+        // Diferencia máxima y promedio (distancia euclidiana) entre los puntos de ambos métodos.
+        // Si un método desborda (NaN o infinito), la diferencia es infinita.
+        public static void Diferencias(Vector2[] a, Vector2[] b, out double maxima, out double promedio)
+        {
+            maxima = 0;
+            double suma = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                double d = a[i].Distancia(b[i]);
+                if (double.IsNaN(d) || double.IsInfinity(d))
+                {
+                    maxima = promedio = double.PositiveInfinity;
+                    return;
+                }
+                suma += d;
+                if (d > maxima) maxima = d;
+            }
+            promedio = suma / a.Length;
+        }
     }
 }
