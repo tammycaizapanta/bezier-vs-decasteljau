@@ -6,3 +6,4 @@
 - Evaluación por polinomios de Bernstein (#1) — Tammy
 - Algoritmo de De Casteljau (#3) - Laura
 - Medición de tiempos y diferencias (#4) — Julio
+- Interfaz Gráfica (#5) Bernardo
