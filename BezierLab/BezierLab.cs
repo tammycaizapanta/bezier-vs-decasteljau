@@ -51,8 +51,24 @@ namespace BezierLab
         {
             lblT.Text = "t = " + T.ToString("0.00");
             picLienzo.Invalidate();
+            ActualizarEstado();
         }
 
+        // Grado, muestras y diferencia entre ambos métodos para la curva actual
+        private void ActualizarEstado()
+        {
+            if (puntos.Count < 2)
+            {
+                lblEstado.Text = "Agrega al menos 2 puntos.";
+                return;
+            }
+            Vector2[] control = puntos.ToArray();
+            double max, prom;
+            Medicion.Diferencias(Bernstein.Muestrear(control, Muestras),
+                                 DeCasteljau.Muestrear(control, Muestras), out max, out prom);
+            lblEstado.Text = "Grado " + (puntos.Count - 1) + "  ·  " + Muestras + " muestras\r\n" +
+                             "Dif. máx: " + max.ToString("E2") + " px   Dif. prom: " + prom.ToString("E2") + " px";
+        }
 
         // ------------------------------------------------------------
         //  Mouse: agregar, mover y eliminar puntos
@@ -195,9 +211,22 @@ namespace BezierLab
 
         // Todas las combinaciones del informe: 10 repeticiones cada una, sin dibujar.
         // Corre en segundo plano (Task.Run) para que la ventana no se congele.
-        private void btnPrueba_Click(object sender, EventArgs e)
+        private async void btnPrueba_Click(object sender, EventArgs e)
         {
-           
+            DialogResult r = MessageBox.Show(
+                "La prueba completa mide todas las combinaciones de grado y muestras " +
+                "(10 repeticiones cada una) y tarda alrededor de un minuto.\r\n\r\n¿Continuar?",
+                "Prueba completa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (r != DialogResult.Yes) return;
+
+            grpPruebas.Enabled = false;
+            Cursor = Cursors.WaitCursor;
+            lblEstado.Text = "Ejecutando la prueba completa... no cierre la ventana.";
+            string resultado = await Task.Run(() => Medicion.PruebaCompleta());
+            txtResultados.Text = resultado;
+            Cursor = Cursors.Default;
+            grpPruebas.Enabled = true;
+            lblEstado.Text = "Prueba terminada. Use \"Copiar resultados\" y péguelos en datos/resultados.txt.";
         }
 
         // Copia la tabla para pegarla en el informe
